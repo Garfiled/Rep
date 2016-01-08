@@ -1,0 +1,43 @@
+
+' 匹配中文字符
+Sub check_name()
+    
+    Dim reg As Object
+    Set reg = CreateObject("vbscript.regexp")
+    With reg
+        .Global = True
+        .IgnoreCase = True
+        .Pattern = "[\u4e00-\u9fa5]+"
+    End With
+   Dim m As Object
+   Dim ret, temp As String
+   Dim flag As Boolean
+   
+   With Sheet1
+    For i = 1 To 10000000
+        Text = .Cells(i, 3)
+        If Text <> "" Then
+           Set mc = reg.Execute(Text)
+              temp = ""
+              ret = ""
+              flag = True
+              
+              For Each m In mc
+                If flag Then
+                    ret = m.Value
+                    flag = False
+                End If
+                 temp = m.Value
+              Next
+              .Cells(i, 8) = ret
+              .Cells(i, 9) = temp
+              ' ret = ret + "-" + temp
+              'MsgBox ret
+        Else
+            Exit For
+        End If
+    Next i
+   End With
+   MsgBox "Done!"
+
+End Sub

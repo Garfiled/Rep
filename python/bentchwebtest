@@ -1,0 +1,130 @@
+#coding=utf-8
+#!/usr/bin/python
+
+//服务器压力测试工具
+import threading,StringIO,time,urllib2,json,gzip,socket,datetime
+
+class myThread (threading.Thread):   #继承父类threading.Thread
+    def __init__(self, threadName,uid_pre,uid_last):
+        threading.Thread.__init__(self)
+        self.threadName = threadName
+        self.uid = uid_pre + uid_last
+        self.sid = ""
+        self.log = {}
+    def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数 
+        global Case_file,Log_file,Logdict_Mutex,starttime,Run_time,Log_dict
+        if myThread.login(self):
+            request_finish = datetime.datetime.now()
+            while (request_finish - starttime).seconds < Run_time:
+                    for case_line in Case_file:
+                        case_line = case_line.strip(" ")
+                        case_line = case_line.strip("\n")
+                        if case_line and (not case_line.startswith("//")):
+                            request_start = datetime.datetime.now()
+                            url = myThread.getUrl(self, case_line)
+                            content = ""
+                            error_state = 1
+                            try:    
+                                response = urllib2.urlopen(url)
+                                content = response.read()
+                                if response.headers.has_key('content-encoding'):    
+                                    content_temp = StringIO.StringIO(content)
+                                    gz = gzip.GzipFile(fileobj=content_temp)
+                                    content = gz.read()
+                                    gz.close()
+                            except :
+                                error_state = 0
+                            request_finish = datetime.datetime.now()
+                            request_info = [(request_finish - request_start).seconds, len(content), 1,error_state]
+                            if case_line in self.log:
+                                for i in range(len(request_info)):
+                                    self.log[case_line][i] += request_info[i]
+                            else:
+                                self.log[case_line] = request_info
+                            time.sleep(1)
+            if Logdict_Mutex.acquire(): 
+                for (k, v) in self.log.items():
+                    if k in Log_dict:
+                        for i in range(len(v)):
+                            Log_dict[k][i] += v[i]
+                    else:
+                        Log_dict[k] = v
+                Logdict_Mutex.release()
+    # 特例就没必要和原来的写在一起，单独处理就好了
+    def login(self):
+        global Server_url
+        try:
+            response = urllib2.urlopen(Server_url+"login?uid=",self.uid,+"&keysum=111")
+            content = response.read()
+            if response.headers.has_key('content-encoding'):    
+                content_temp = StringIO.StringIO(content)
+                gz = gzip.GzipFile(fileobj=content_temp)
+                content = gz.read()
+                gz.close()
+            content_json = json.loads(content)
+            self.sid = content_json["Sid"].replace("+","%2b")
+            return True
+        except:
+            return False   
+        if not content_json.has_key["User"]:
+            response = urllib2.urlopen(Server_url+"newrole?nick=",self.uid,+"&sid=" + self.sid)
+
+    def getUrl(self, case_line):
+        global Server_url
+        commandArr = case_line.split(" ")
+        ret = Server_url
+        i = 0
+        for temp in commandArr:
+            if i == 0:
+                ret = ret + temp + "?"
+            elif i == 1:
+                ret = ret + temp + "="
+            elif i % 2 == 1:
+                ret = ret + "&" + temp + "="
+            else:
+                ret = ret + "=" + temp
+            i += 1
+        if ret[-1] == "?":
+            ret = ret + "sid=" + self.sid
+        else:
+            ret = ret + "&sid=" + self.sid
+        return ret
+
+        
+# ------------  配置区 -----------------
+
+Server_url = "http://192.168.1.148:9090/"# 服务器地址
+Thread_num = 200                         # 线程数量
+Case_path = r"case.txt"                  # 测试案例文件名
+Log_path = r"benchlog.txt"               # 性能测试log
+Log_dict = {}
+Run_time = 60                            # 测试时间
+
+# -----------------------------
+if __name__ == "__main__":
+    Thread_list = []    
+    Case_object = open(Case_path)
+    Case_file = Cas _object.readlines()
+    Case_object.close()
+    Log_file = open(Log_path,'w+')
+    Logdict_Mutex = threading.Lock()
+
+    for i in range(1,Thread_num + 1):
+    	Thread_list.append(myThread("Thread-" + str(i), "ll" , str(i)))
+    starttime = datetime.datetime.now()
+    for thread_agent in Thread_list:
+    	thread_agent.start()
+    for thread_agent in Thread_list:
+        thread_agent.join ()
+    endtime = datetime.datetime.now()
+    print endtime
+    print (endtime - starttime).seconds
+    log_result = ""
+    for (k,v) in Log_dict.items():
+        result_line = k
+        for temp in v:
+            result_line = result_line + "#" + str(temp)
+        result_line = result_line + "\n"
+    if log_result:
+        Log_file.writelines(log_result)
+    print "Done!"

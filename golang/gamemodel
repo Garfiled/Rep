@@ -1,0 +1,231 @@
+package main
+
+import (
+	"fmt"
+	"net"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+)
+
+type TPlayer struct {
+	Id      int
+	Nick    string
+	Conn    *net.TCPConn
+	Desk    *TDesk
+	RecvMsg chan string
+}
+
+type TDesk struct {
+	Id         int
+	Sits       []*TPlayer
+	WhoTurn    int
+	RoundCount int
+	Jushu      int
+	Count      int
+	IsCheck    bool
+	IsMatch    bool
+	Timer      *time.Timer
+	RecvMsg    chan *TDeskRecvMsg
+}
+
+type TDeskRecvMsg struct {
+	O        *TPlayer
+	Action   string
+	EnemySit int
+	Para     int
+	State    chan string
+}
+
+type TMatchDesk struct {
+	Desks map[int]*TDesk
+	sync.Mutex
+}
+
+type TDeskMsg struct {
+	Id     int
+	Action string
+	Ret    chan *TDesk
+}
+
+var (
+	gdeskId       int
+	gpId          int
+	gDeskMatch    = &TMatchDesk{make(map[int]*TDesk), sync.Mutex{}}
+	gDeskNotMatch = &TMatchDesk{make(map[int]*TDesk), sync.Mutex{}}
+	gDeskSys      = make(chan *TDeskMsg, 1)
+)
+
+func deskSys() {
+	var deskMsg *TDeskMsg
+	for {
+		deskMsg = <-gDeskSys
+		fmt.Println("deskSys recv:", *deskMsg)
+		switch deskMsg.Action {
+		case "enterdesk":
+			desk := findnotmatchdesk()
+			if desk == nil {
+				desk = createdesk()
+				go dgroutine(desk)
+			}
+			deskMsg.Ret <- desk
+		}
+	}
+}
+
+func dgroutine(desk *TDesk) {
+	fmt.Println(desk.Id, "start")
+	var deskRecvMsg *TDeskRecvMsg
+	for {
+		deskRecvMsg = <-desk.RecvMsg
+		switch deskRecvMsg.Action {
+		case "sit":
+			if deskRecvMsg.Para >= 0 && deskRecvMsg.Para < len(desk.Sits) {
+				if desk.Sits[deskRecvMsg.Para] != nil {
+					deskRecvMsg.State <- "has player on this sit"
+				} else {
+					desk.Sits[deskRecvMsg.Para] = deskRecvMsg.O
+					desk.Count++
+					deskRecvMsg.State <- "OK"
+					if !desk.IsMatch && !desk.IsCheck && desk.Count >= 2 {
+						desk.IsCheck = true
+						go checkTimer(desk)
+					}
+				}
+			} else {
+				deskRecvMsg.State <- "para wrong"
+			}
+		case "checkstart":
+			if desk.Count >= 2 {
+				desk.IsMatch = true
+				for _, p := range desk.Sits {
+					if p != nil {
+						p.RecvMsg <- "gamestart"
+					}
+				}
+			} else {
+				desk.IsCheck = false
+			}
+
+		}
+	}
+
+}
+func checkTimer(desk *TDesk) {
+	time.Sleep(10*time.Second)
+	desk.RecvMsg <- &TDeskRecvMsg{Action: "checkstart"}
+}
+func pread(p *TPlayer) {
+	var byteCount int
+	var buf = make([]byte, 1024)
+	var bufRet = make([]byte, 1024)
+	var err error
+	for {
+		byteCount, err = p.Conn.Read(buf)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		copy(bufRet, buf[:byteCount])
+		p.RecvMsg <- string(bufRet[:byteCount])
+	}
+}
+func pgroutine(p *TPlayer) {
+	var msg string
+	p.Conn.Write([]byte("welcome"))
+	for {
+		msg = <-p.RecvMsg
+		fmt.Printf("recv pid=%d nick=%s msg=%s\n", p.Id, p.Nick, msg)
+		switch {
+		case msg == "enterdesk":
+			p.enterdesk(msg)
+		case msg[:5] == "login":
+			p.login(msg)
+		case msg[:3] == "sit":
+			p.sit(msg)
+		case msg == "gamestart":
+			p.gamestart()
+		}
+	}
+}
+func (p *TPlayer) gamestart() {
+	p.Conn.Write([]byte("gamestart"))
+}
+
+func (p *TPlayer) sit(msg string) {
+	tt := strings.Split(msg, " ")
+	index, err := strconv.Atoi(tt[1])
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		deskRecvMsg := &TDeskRecvMsg{O: p, Action: "sit", Para: index, State: make(chan string, 1)}
+		p.Desk.RecvMsg <- deskRecvMsg
+		state := <-deskRecvMsg.State
+		if state != "OK" {
+			fmt.Println(state)
+		}
+		p.Conn.Write([]byte(state))
+	}
+}
+func (p *TPlayer) login(msg string) {
+	tt := strings.Split(msg, " ")
+	p.Nick = tt[1]
+	p.Conn.Write([]byte("login ok " + p.Nick))
+}
+
+func (p *TPlayer) enterdesk(msg string) {
+	deskMsg := &TDeskMsg{0, "enterdesk", make(chan *TDesk, 1)}
+	gDeskSys <- deskMsg
+	desk := <-deskMsg.Ret
+	p.Desk = desk
+	p.Conn.Write([]byte(fmt.Sprintf("%d you are in desk %d", p.Id, p.Desk.Id)))
+}
+func createdesk() *TDesk {
+	gDeskNotMatch.Lock()
+	desk := &TDesk{Sits: make([]*TPlayer, 6),
+		RecvMsg: make(chan *TDeskRecvMsg, 1),
+		Timer:   time.NewTimer(5 * time.Second),
+	}
+	gDeskNotMatch.Desks[gdeskId] = desk
+	gdeskId++
+	gDeskNotMatch.Unlock()
+	return desk
+}
+
+func findnotmatchdesk() *TDesk {
+	gDeskNotMatch.Lock()
+	if len(gDeskNotMatch.Desks) > 0 {
+		for _, v := range gDeskNotMatch.Desks {
+			gDeskNotMatch.Unlock()
+			return v
+		}
+	}
+	gDeskNotMatch.Unlock()
+	return nil
+}
+
+func main() {
+	go deskSys()
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", ":9001")
+	if err != nil {
+		fmt.Println(err)
+	}
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("server listen on:", tcpAddr)
+	for {
+		conn, err := listener.AcceptTCP()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		p := &TPlayer{Id: gpId, Conn: conn, RecvMsg: make(chan string, 1)}
+		gpId++
+		go pgroutine(p)
+		go pread(p)
+	}
+}

@@ -1,0 +1,322 @@
+内置函数new的作用：
+计算类型大小、为其分配零值内存、返回指针
+
+make:
+会被编译器翻译成具体的创建函数，由其分配内存和初始化成员结构，返回对象而非指针
+
+
+字符串：
+runtime.h
+struct String
+{
+	byte*	str;
+	intgo	len;
+};
+
+字符串不可变类型
+支持用两个索引号返回子串，子串依然指向原字节数组，仅修改了指针和长度属性
+
+
+指针：
+直接用指针访问目标对象成员，无须转换
+
+range 会复制对象 -- 建议改用引用类型，其底层数据不会被复制
+
+数组：
+值类型，赋值和传参会复制整个数组，而不是指针
+指针数组 [n]*T   数组指针 *[n]T
+
+slice切片
+slice并不是数组或数组指针，它通过内部指针和相关属性引用数组片段
+以实现变长方案
+reslice 基于已有slice创建新slice对象，以便在cap允许范围内调整属性
+新对象依旧指向原底层数组
+append 向slice尾部添加数据，返回新的slice对象
+
+
+
+struct:
+值类型，赋值和传参会复制全部内容
+
+method: 复制receiver
+指针作为receiver 传值的话Go语言会自动帮你去转换
+值作为receiver,传指针的话Go语言也会自动帮你去转换
+
+interface:
+一个或多个方法签名的集合，任何类型的方法集中只要拥有与之对应的全部方法，就表示它实现了该接口
+
+空接口interface{} 没有任何方法签名，意味着任何类型都实现了空接口，其作用类似面向对象语言中的根对象 object
+接口对象由接口表interface table 指针和数据指针组成
+接口表存储接口类型 动态类型以及实现接口的方法指针
+数据指针持有的是目标对象的只读复制品，复制完整对象或指针
+接口转型返回临时对象，只有使用指针才能修改其状态
+
+
+channel 类型：
+实现以通讯方式共享内存
+同步模式->需要发送和接受配对，否则会被阻塞，直到其他线程准备好后被唤醒
+异步模式->通过判断缓冲区来决定是否阻塞。如果缓冲区已满，发送被阻塞；缓冲区为空，接受被阻塞
+通常情况下：异步channel可减少排队阻塞，具备更高的效率，但应该考虑使用指针规避大对象拷贝，将多个元素打包，减小缓冲区的大小等
+ channel = make(chan int) 实际返回的是一个指针包装对象
+ 
+
+goroutine:
+调度器不能保证多个goroutine 执行次序，且进程退出时不会等待它们结束
+默认下，进城启动后仅允许一个系统线程服务于goroutine,可使用环境变量或标准库函数runtime.GOMAXPROCS 修改，让调度器用多个线程实现多核并行，而不仅仅是并发
+goroutine 基本来说是用操作系统的线程来实现的，不过goroutine有个特性，如果一个goroutine没有被阻塞，那么别的goroutine就不会得到执行
+
+Go 静态类型语言的快速编译 运行和动态类型语言的开发效率
+带gc 并发 快速编译 支持网络 多核计算
+
+struct:
+看作是不支持继承行为的轻量级的类
+
+reflect:
+没有运行期类型对象，实例也没有附加字段用来表明身份。只有转换成接口时，才会在其itab内部存储
+与该类型有关的信息，Refect所有操作都依赖于此
+
+反射和接口密切相关
+反射是一种检查存储在接口变量中（类型、值）对的机制；
+1.Reflection goes from interface value to reflecton object.
+2.Reflection goes from reflection object to interface value.
+3.To modify a reflection object, the value must be settable.
+
+When programming Go, the runtime is not in the front of your mind. You interact with the system library,
+and the runtime supports your code more or less silently. 
+This is why the majority of information you'll see about Go is how to use the libraries 
+and how to use the channels to implement concurrent programming, and little about the runtime itself.
+
+ 
+var intPointerGlobal *int = nil
+
+func Foo() *int {
+    anInt0 := 0
+    anInt1 := new(int)
+
+    anInt2 := 42
+    intPointerGlobal = &anInt2
+
+    anInt3 := 5
+
+    return &anInt3
+}
+Above, anInt0 and anInt1 do not escape, so they are allocated on the stack;
+anInt2 and anInt3 escape, and are allocated on the heap.
+
+http://stackoverflow.com/questions/25658998/golang-memory-layout-compared-to-c-c
+http://developer.51cto.com/art/201411/456569.htm    // goroutine stack
+https://code.google.com/p/go-wiki/wiki/DesignDocuments  // golang design document
+http://www.quora.com/What-is-difference-between-Goroutines-vs-OS-threads // goroutine vs os thread
+http://skoo.me/go/2013/11/29/golang-schedule/
+
+类型系统没有层级，轻量
+支持多核计算
+
+
+runtime:
+垃圾收集  并发支持  interface管理 maps slices strings
+
+GO 1.4后，默认不支持CGO编译了，需要开启CGO_ENABLED，然后重新make一下，
+可以到goroot目录下的src/cmd/cgo/ 目录下 go build, 
+然后 go install一下，确保编译出的指令在 goroot的bin目录下，然后你再编译你的项目试试。
+另外，不建议你使用GOID，而是使用库 github.com/jtolds/gls , 因为goid有时候并不是唯一的。尤其是在低并发量的时候
+
+package main
+
+import (
+    "fmt"
+)
+
+/*
+int a[10] = { [0] = 2, [5] = 8, [7] = 187 };
+*/
+import "C"
+
+func main() {
+    fmt.Println(C.a[7]) // 187
+}
+
+
+
+http://tonybai.com/2012/09/26/interoperability-between-go-and-c/
+
+
+总结：
+1: 函数调用协议，多返回值的实现？
+    i：会进行eacape analysis，决定变量的创建是在栈中还是堆上，并且得知该函数调用所需的栈桢的大小，来
+    判断是否需要more stack，而在堆中的分配的对象都会调用(或间接) mallogc 函数，以实现内存的精确管理和
+    垃圾回收
+    ii: 函数参数和返回值一起由caller 入栈，被调函数修改这里的值，相当于修改了返回值给调用者使用
+    iii：caller 
+
+2: 运行时和编译期？
+    为什么有些检查放在编译时，而有些检查放在运行时，这里面有什么度量？
+    例如：数组或切片的边界检查
+
+    运行时创建一个结构体？？？
+
+    编译器可以做的优化，类型检查之类
+
+3: 内存管理的内部算法实现  结合tcmallo
+	i:分配器以页为单位向操作系统申请（N个地址连续的页＝》span）大块内存，自主管理，减少系统调用
+	ii：基于块的内存复用体系，加快内存分配和回收操作
+	
+    mallocgc
+
+    HEAP
+    thread cache
+    结合python内存管理的实现
+
+    MHeap   span页
+    Mcentral  -> 将span切成object的freelist链表
+    Mcache  
+    
+    每个机器字（32位或64位）会对应4位的标记
+    连续的64位字节 标记128字节（64位）
+    物理内存的释放由sysmon定期检查，收回闲置超过5分钟的span物理内存
+4:垃圾回收机制
+    是结合EA分析的
+    实现精确垃圾回收 Mark and Sweep算法
+    关闭GC：GOGC=off ./g
+    触发：
+    分配时检查阀值
+    手动触发
+	定期运行强制回收（2分钟），避免内存浪费，
+	
+	并发标记，标记结束后，立即恢复逻辑执行，用一个专门的goroutine在后台清理内存
+
+5:goroutine 的调度策略实现
+    m:n线程模型
+	goroutine schedule 使用调度模型，即任意数量的用户态协程可以运行在任意数量的OS线程上，使得上下文切换更加轻量级
+	同时又可以充分利用多核优势
+	i：对系统调用的运行时库的封装 entersyscall  exitsyscall
+    
+    抢占标记：gp->stackguard0 = StackPreempt，函数调用时通过检查这个标记位，执行newstack->schedule
+    前提是执行其他非内联函数
+
+    goroutine schedule：触发调度的时机
+        函数调用时：判断是否growstack
+        goexit：goroutine结束
+        park_m：goroutine被设置为Gwaiting
+        长时间的syscall：长时间处于系统调用阻塞的goroutine，剥离P
+        长时间运行的goroutine：设置抢占调度标记
+
+
+    the following operations do not cause the goroutine to use a thread when they block;
+        channel operations
+        network operations
+        sleeping
+
+6:性能调优环境搭建
+
+
+7:sysmon：
+    i：对长时间运行的goroutine发出抢占调度标记
+    ii：收回因syscall长时间阻塞的P
+    iii：将长时间没有处理的netpoll结果添加到任务队列
+    iv：如果超过2分钟没有运行垃圾回收，那么强制启动
+    v：释放那些闲置超过5分钟的span物理内存
+
+    垃圾回收启动，会休眠sysmon线程
+
+8: golang gdb:
+    info files
+    disass 0x30a00 // 入口地址
+// 源码不容易读明白撒～
+
+golang return 语句并不是原子指令
+runtime.deferproc
+函数返回的过程是这样的：
+返回值＝XXX
+调用defer函数
+空的return
+
+
+问题：
+1:sysmon需要绑定P来执行吗？  应该不需要，不参与goroutine调度
+2: p为M提供内存分配器缓存和G任务队列等执行资源   mcache挂在p上？
+3: 当系统 change number of processors 时，the world is stopped ，这时候sysmon处于什么状态呢？
+4：onm、mcall 执行管理命令
+5: 创建G完成后，若有空闲p, 则会唤醒或创建M来执行任务 
+
+
+适应高并发任务的
+
+
+－－－－－－－－－－－－－－－－－－－－－－－－－
+CPU｜W***A***I***T｜CPU|W***A***I***T|CPU|         ／／ 每个任务的代码段
+－－－－－－－－－－－－－－－－－－－－－－－－－
+
+
+－－－－－－－－－－－－－－－－－－－－－－－－－
+CPU｜W***A***I***T｜CPU|W***A***I***T|CPU|
+－－－－－－－－－－－－－－－－－－－－－－－－－
+
+
+－－－－－－－－－－－－－－－－－－－－－－－－－
+CPU｜W***A***I***T｜CPU|W***A***I***T|CPU|
+－－－－－－－－－－－－－－－－－－－－－－－－－
+
+
+。。。。。。。
+
+1:如果采用多进程、多线程模型，对于成千上万的高并发需求服务器的资源及调度性能会有问题
+2:
+执行任务－》一定数量的内核线程
+
+
+
+netpoll:
+runtime在执行findrunnablequeue、starttheworld，sysmon函数时，都会调用netpoll_epoll.go中的netpoll函数，
+寻找到IO就绪的socket文件描述符，并找到这些socket文件描述符对应的轮询器中附带的信息，
+根据这些信息将之前等待这些socket文件描述符就绪的goroutine状态修改为Grunnable。在以上函数中，执行完netpoll之后，
+会找到一个就绪的goroutine列表，接下来将就绪的goroutine加入到调度队列中，等待调度运行。
+
+在netpoll_epoll.go中的netpoll函数中，epoll_wait函数返回N个发生事件的文件描述符对应的epollevent，
+接着对于每个event使用其data属性，将event.data转换为*pollDesc类型，再调用netpoll.go中的netpollready函数，
+将*pollDesc类型中的G数据类型去除，并附加到netpoll函数的调用者传递的G链表中：
+
+
+
+channel:
+
+不带缓冲的情况
+写：判断recvq中有等待的routine若有则将数据copy给他，并将其routine设置为ready，当前routine继续执行
+读：判断sendq中是否有等待的
+
+
+channel的实现，都在$GOROOT/src/pkg/runtime/chan.c里
+
+它是通过共享内存实现的
+struct Hchan {
+}
+
+ch := make(chan interface{}, 5)
+具体的实现是chan.c里的 Hchan* runtime·makechan_c(ChanType *t, int64 hint)
+此时，hint=5, t=interface{}
+
+
+它完成的任务就是：
+分配hint * sizeof(t) + sizeof(Hchan)的内存空间［也就是说，buffered chan的buffer越大，占用
+内存越大］
+
+ch <- 5
+就会调用 void runtime·chansend(ChanType *t, Hchan *chan, byte *ep, bool *pres)
+    lock(chan)
+    如果chan是buffer chan {
+        比较当前已经放入buffer里的数据是否满了A
+        如果没有满 {
+            把ep(要放入到chan里的数据)拷贝到chan的内存区域 (此区域是sender/recver共享的)
+            找到receiver goroutine, make it ready, and schedule it to recv
+        } else {
+            已经满了
+            把当前goroutine状态设置为Gwaiting
+            yield
+        }
+
+    } else {
+        // 这是blocked chan
+        找到receiver goroutine (channel的隐喻就是一定存在多个goroutine)
+        让该goroutine变成ready (之前是Gwaiting), 从而参与schedule，获得控制权
+        具体执行什么，要看chanrecv的实现
+    }

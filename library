@@ -1,0 +1,95 @@
+
+
+
+********************* 之所以难以理解，可能是因为我们没有找对老师！************************************
+
+socket: 
+Like this way: http://www.binarytides.com/socket-programming-c-linux-tutorial/
+python: http://www.iteye.com/topic/372275
+http协议: http://www.cnblogs.com/simple-blog/p/4377647.html
+tcpdump:
+官网：http://www.tcpdump.org/manpages/tcpdump.1.html
+直观来了：http://roclinux.cn/?p=2474
+
+汇编:
+http://www.tutorialspoint.com/assembly_programming/assembly_system_calls.htm
+http://edu.51cto.com/lesson/id-28305.html
+博客：http://www.cnblogs.com/Daniel-G/archive/2012/11/27/2790861.html
+
+Git: 
+图解：http://marklodato.github.io/visual-git-guide/index-zh-cn.html 
+基础：http://www.aips.me/code/174.html#more-174
+git merge and git rebase的区别: http://gitbook.liuhui998.com/4_2.html  文件的版本提交顺序不同,形成的版本号不同
+
+linux: 
+command: http://billie66.github.io/TLCL/book/
+shell: http://froghs.net/misc.htm#free
+kenel: http://oss.org.cn/kernel-book/
+linux内核分析 http://mooc.study.163.com/learn/USTC-1000029000#/learn/content?type=detail&id=1000106005
+
+Golang: 
+http://www.cnblogs.com/yjf512/archive/2012/07/17/2595689.html
+https://github.com/astaxie/build-web-application-with-golang/tree/master/ebook
+http://www.open-open.com/lib/view/open1391347613192.html
+http://ilovers.sinaapp.com/drupal/node/33
+http://docscn.studygolang.com/project/
+http://www.widuu.com/archives/11/842.html net/http包
+http://my.oschina.net/u/943306/blog/151293
+http://www.ucai.cn/course/chapter/26/2923/3098  //golang web application
+
+C:
+Ted编程范式：http://v.163.com/special/opencourse/paradigms.html
+vedio : http://www.open-open.com/news/view/1435010
+http://see.xidian.edu.cn/cpp/
+https://github.com/Mzzopublic/C/blob
+GDB调试C程序  http://blog.csdn.net/haoel/article/details/2879
+
+Python:
+http://interactivepython.org/courselib/static/pythonds/Introduction/introduction.html
+http://interactivepython.org/courselib/static/pythonds/index.html
+http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001402402473485d8c205b735ee4e698f90769960fcec4b000
+
+牛人博客：
+http://blog.csdn.net/hguisu/article/details/8680808
+http://www.cnblogs.com/vamei/p/3559015.html
+http://www.nowamagic.net/librarys/eight/posts/2695
+
+Json: 
+http://www.json.org/json-zh.html
+
+unity 3d
+http://blog.csdn.net/kepoon/article/details/8634167
+
+OpenGL
+http://www.yakergong.net/nehe/
+
+Game Develop
+http://www.thegamecreators.com/
+
+temp
+http://www.aikaiyuan.com/6168.html  // wrk http 压力测试工具安装
+https://wide.b3log.org/   // golang online ide
+
+内存管理
+http://www.cnblogs.com/xiekeli/archive/2012/10/17/2727432.html
+
+
+游戏开发：
+http://www.gameres.com/454350.html // 网游位置同步  状态同步  影子跟随算法
+http://blog.codingnow.com/2012/03/dev_note_12.html // 云风的blog
+
+客户端和服务器对时（分别算出 时差和延迟）
+
+
+Gc:
+http://rednaxelafx.iteye.com/blog/1044951
+http://thinkinginruby.group.iteye.com/group/wiki/1276-garbage-collection
+http://llvm.org/docs/GarbageCollection.html#id8
+
+http://rednaxelafx.iteye.com/blog/1044951
+
+
+How Java Garbage Collector Works?
+https://javamagic.wordpress.com/2010/08/17/how-javas-garbage-collector-works/
+
+http://gchandbook.org/
