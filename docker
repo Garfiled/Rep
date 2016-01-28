@@ -1,0 +1,7 @@
+sudo docker run 32bit/ubuntu:14.04 echo "hello world!"
+// docker 镜像
+docker images
+// 运行交互式的shell
+docker run -i -t ubuntu /bin/bash
+
+sudo docker run -p 9001:80 -it garfiled/ubuntu-nginx:v2
