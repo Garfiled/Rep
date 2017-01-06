@@ -5,8 +5,14 @@
 
 socket: 
 Like this way: http://www.binarytides.com/socket-programming-c-linux-tutorial/
-python: http://www.iteye.com/topic/372275
 http协议: http://www.cnblogs.com/simple-blog/p/4377647.html
+
+技术论坛：
+http://stackoverflow.com/
+
+机器学习：
+https://zhuanlan.zhihu.com/p/21378532?refer=intelligentunit
+
 tcpdump:
 官网：http://www.tcpdump.org/manpages/tcpdump.1.html
 直观来了：http://roclinux.cn/?p=2474
@@ -14,7 +20,7 @@ tcpdump:
 汇编:
 http://www.tutorialspoint.com/assembly_programming/assembly_system_calls.htm
 http://edu.51cto.com/lesson/id-28305.html
-博客：http://www.cnblogs.com/Daniel-G/archive/2012/11/27/2790861.html
+http://www.cnblogs.com/Daniel-G/archive/2012/11/27/2790861.html
 
 Git: 
 图解：http://marklodato.github.io/visual-git-guide/index-zh-cn.html 
@@ -45,6 +51,7 @@ https://github.com/Mzzopublic/C/blob
 GDB调试C程序  http://blog.csdn.net/haoel/article/details/2879
 
 Python:
+http://www.iteye.com/topic/372275
 http://interactivepython.org/courselib/static/pythonds/Introduction/introduction.html
 http://interactivepython.org/courselib/static/pythonds/index.html
 http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001402402473485d8c205b735ee4e698f90769960fcec4b000
@@ -67,10 +74,6 @@ http://www.yakergong.net/nehe/
 Game Develop
 http://www.thegamecreators.com/
 
-temp
-http://www.aikaiyuan.com/6168.html  // wrk http 压力测试工具安装
-https://wide.b3log.org/   // golang online ide
-
 内存管理
 http://www.cnblogs.com/xiekeli/archive/2012/10/17/2727432.html
 
@@ -78,19 +81,13 @@ http://www.cnblogs.com/xiekeli/archive/2012/10/17/2727432.html
 游戏开发：
 http://www.gameres.com/454350.html // 网游位置同步  状态同步  影子跟随算法
 http://blog.codingnow.com/2012/03/dev_note_12.html // 云风的blog
-
 客户端和服务器对时（分别算出 时差和延迟）
-
 
 Gc:
 http://rednaxelafx.iteye.com/blog/1044951
 http://thinkinginruby.group.iteye.com/group/wiki/1276-garbage-collection
 http://llvm.org/docs/GarbageCollection.html#id8
-
 http://rednaxelafx.iteye.com/blog/1044951
-
-
 How Java Garbage Collector Works?
 https://javamagic.wordpress.com/2010/08/17/how-javas-garbage-collector-works/
-
 http://gchandbook.org/
