@@ -1,17 +1,12 @@
 
 
-
 ********************* 之所以难以理解，可能是因为我们没有找对老师！************************************
 
-socket: 
+网络协议：
 Like this way: http://www.binarytides.com/socket-programming-c-linux-tutorial/
 http协议: http://www.cnblogs.com/simple-blog/p/4377647.html
-
-技术论坛：
-http://stackoverflow.com/
-
-机器学习：
-https://zhuanlan.zhihu.com/p/21378532?refer=intelligentunit
+http://www.ruanyifeng.com/blog/2012/06/internet_protocol_suite_part_ii.html
+http://www.cnblogs.com/maybe2030/p/4781555.html
 
 tcpdump:
 官网：http://www.tcpdump.org/manpages/tcpdump.1.html
@@ -21,6 +16,9 @@ tcpdump:
 http://www.tutorialspoint.com/assembly_programming/assembly_system_calls.htm
 http://edu.51cto.com/lesson/id-28305.html
 http://www.cnblogs.com/Daniel-G/archive/2012/11/27/2790861.html
+http://www.cnblogs.com/ym65536/p/4542646.html
+http://m.yiibai.com/html/assembly/2013/0813121.html
+https://www3.nd.edu/~dthain/courses/cse40243/fall2015/intel-intro.html
 
 Git: 
 图解：http://marklodato.github.io/visual-git-guide/index-zh-cn.html 
@@ -28,12 +26,15 @@ Git:
 git merge and git rebase的区别: http://gitbook.liuhui998.com/4_2.html  文件的版本提交顺序不同,形成的版本号不同
 
 linux: 
+https://www.youtube.com/watch?v=5AjReRMoG3Y&list=PLmbPuZ0NsyGS8ef6zaHd2qYylzsHxL63x
 command: http://billie66.github.io/TLCL/book/
 shell: http://froghs.net/misc.htm#free
 kenel: http://oss.org.cn/kernel-book/
 linux内核分析 http://mooc.study.163.com/learn/USTC-1000029000#/learn/content?type=detail&id=1000106005
+http://www.infoq.com/cn/news/2015/12/linux-performance
 
 Golang: 
+https://github.com/qyuhen/book
 http://www.cnblogs.com/yjf512/archive/2012/07/17/2595689.html
 https://github.com/astaxie/build-web-application-with-golang/tree/master/ebook
 http://www.open-open.com/lib/view/open1391347613192.html
@@ -71,14 +72,12 @@ http://blog.csdn.net/kepoon/article/details/8634167
 OpenGL
 http://www.yakergong.net/nehe/
 
-Game Develop
-http://www.thegamecreators.com/
-
 内存管理
 http://www.cnblogs.com/xiekeli/archive/2012/10/17/2727432.html
 
 
 游戏开发：
+http://www.thegamecreators.com/
 http://www.gameres.com/454350.html // 网游位置同步  状态同步  影子跟随算法
 http://blog.codingnow.com/2012/03/dev_note_12.html // 云风的blog
 客户端和服务器对时（分别算出 时差和延迟）
@@ -91,3 +90,6 @@ http://rednaxelafx.iteye.com/blog/1044951
 How Java Garbage Collector Works?
 https://javamagic.wordpress.com/2010/08/17/how-javas-garbage-collector-works/
 http://gchandbook.org/
+
+机器学习：
+https://www.youtube.com/watch?v=K-ivCcIv73o
